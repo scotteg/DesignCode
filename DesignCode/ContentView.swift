@@ -56,6 +56,13 @@ struct ContentView: View {
                     }
                     .padding()
                     .frame(height: 44)
+                    .overlay(
+                        UnevenRoundedRectangle(topLeadingRadius: 0,
+                                               bottomLeadingRadius: 20,
+                                               bottomTrailingRadius: 0,
+                                               topTrailingRadius: 20)
+                            .strokeBorder(linearGradient)
+                    )
                     .offset(x: -20, y: 20)
                     
                     Spacer()
@@ -63,11 +70,22 @@ struct ContentView: View {
                     Image(systemName: "square.and.arrow.down")
                         .padding()
                         .frame(height: 44)
+                        .overlay(
+                            UnevenRoundedRectangle(topLeadingRadius: 20,
+                                                   bottomLeadingRadius: 0,
+                                                   bottomTrailingRadius: 20,
+                                                   topTrailingRadius: 0)
+                                .strokeBorder(linearGradient)
+                        )
                         .offset(x: 20, y: 20)
                 }
             }
             .padding(20)
             .background(.regularMaterial)
+            .overlay(
+                RoundedRectangle(cornerRadius: 20)
+                    .strokeBorder(linearGradient)
+            )
             .cornerRadius(20)
             .padding(20)
             .offset(y: 80)
@@ -75,6 +93,12 @@ struct ContentView: View {
         .frame(maxWidth: 400)
         .padding(20)
         .dynamicTypeSize(.xSmall ... .xLarge)
+    }
+    
+    var linearGradient: LinearGradient {
+        LinearGradient(colors: [.clear, .primary.opacity(0.3), .clear],
+                       startPoint: .topLeading,
+                       endPoint: .bottomTrailing)
     }
 }
 
