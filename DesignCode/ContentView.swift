@@ -9,14 +9,20 @@ import SwiftUI
 
 struct ContentView: View {
     @State var isPlaying = false
+    @State var time = Date.now
+    @State var isActive = false
+    
+    let timer = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
     
     var body: some View {
         ZStack {
             Image(.image1)
                 .resizable()
                 .scaledToFill()
-                .frame(height: 300)
-                .cornerRadius(20)
+                .frame(height: isPlaying ? 600 : 300)
+                .frame(width: isPlaying ? 393 : 360)
+                .cornerRadius(isPlaying ? 0 : 20)
+                .offset(y: isPlaying ? -200 : 0)
             
             VStack(alignment: .center) {
                 Text("modern architecture, an isometric tiny house, cute illustration, minimalist, vector art, night view")
@@ -52,11 +58,16 @@ struct ContentView: View {
                     HStack {
                         Image(systemName: "ellipsis")
                             .symbolEffect(.pulse)
+                        
                         Divider()
+                        
                         Image(systemName: "sparkle.magnifyingglass")
-                            .symbolEffect(.scale.up)
+                            .symbolEffect(.scale.up, isActive: isActive)
+                        
                         Divider()
+                        
                         Image(systemName: "face.smiling")
+                            .symbolEffect(.bounce, value: isActive)
                     }
                     .padding()
                     .frame(height: 44)
@@ -91,8 +102,8 @@ struct ContentView: View {
                     .strokeBorder(linearGradient)
             )
             .cornerRadius(20)
-            .padding(20)
-            .offset(y: 80)
+            .padding(40)
+            .offset(y: isPlaying ? 220 : 80)
             
             HStack(spacing: 30) {
                 Image(systemName: "wand.and.rays")
@@ -100,12 +111,16 @@ struct ContentView: View {
                     .symbolEffect(.variableColor.iterative.reversing,
                                   options: .speed(3))
                     .symbolEffect(.bounce, value: isPlaying)
+                    .opacity(isPlaying ? 1 : 0)
+                    .blur(radius: isPlaying ? 0 : 20)
                 
                 Image(systemName: isPlaying ? "pause.fill" : "play.fill")
                     .frame(width: 44)
                     .contentTransition(.symbolEffect(.replace))
                     .onTapGesture {
-                        isPlaying.toggle()
+                        withAnimation(.bouncy) {
+                            isPlaying.toggle()
+                        }
                     }
                 
                 Image(systemName: "bell.and.waves.left.and.right.fill")
@@ -113,7 +128,14 @@ struct ContentView: View {
                     .symbolEffect(.bounce,
                                   options: .speed(3).repeat(3),
                                   value: isPlaying)
+                    .opacity(isPlaying ? 1 : 0)
+                    .blur(radius: isPlaying ? 0 : 20)
+                    .onReceive(timer) { time in
+                        self.time = time
+                        isActive.toggle()
+                    }
             }
+            .frame(width: isPlaying ? 220 : 50)
             .foregroundStyle(.primary, .white)
             .font(.largeTitle)
             .padding(20)
@@ -123,10 +145,9 @@ struct ContentView: View {
                     .strokeBorder(linearGradient)
             )
             .cornerRadius(20)
-            .offset(y: -44)
+            .offset(y: isPlaying ? 40 : -44)
         }
         .frame(maxWidth: 400)
-        .padding(20)
         .dynamicTypeSize(.xSmall ... .xLarge)
     }
     
