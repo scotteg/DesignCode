@@ -8,6 +8,8 @@
 import SwiftUI
 
 struct ContentView: View {
+    @State var isPlaying = false
+    
     var body: some View {
         ZStack {
             Image(.image1)
@@ -49,8 +51,10 @@ struct ContentView: View {
                 HStack {
                     HStack {
                         Image(systemName: "ellipsis")
+                            .symbolEffect(.pulse)
                         Divider()
                         Image(systemName: "sparkle.magnifyingglass")
+                            .symbolEffect(.scale.up)
                         Divider()
                         Image(systemName: "face.smiling")
                     }
@@ -61,7 +65,7 @@ struct ContentView: View {
                                                bottomLeadingRadius: 20,
                                                bottomTrailingRadius: 0,
                                                topTrailingRadius: 20)
-                            .strokeBorder(linearGradient)
+                        .strokeBorder(linearGradient)
                     )
                     .offset(x: -20, y: 20)
                     
@@ -75,7 +79,7 @@ struct ContentView: View {
                                                    bottomLeadingRadius: 0,
                                                    bottomTrailingRadius: 20,
                                                    topTrailingRadius: 0)
-                                .strokeBorder(linearGradient)
+                            .strokeBorder(linearGradient)
                         )
                         .offset(x: 20, y: 20)
                 }
@@ -89,6 +93,37 @@ struct ContentView: View {
             .cornerRadius(20)
             .padding(20)
             .offset(y: 80)
+            
+            HStack(spacing: 30) {
+                Image(systemName: "wand.and.rays")
+                    .frame(width: 44)
+                    .symbolEffect(.variableColor.iterative.reversing,
+                                  options: .speed(3))
+                    .symbolEffect(.bounce, value: isPlaying)
+                
+                Image(systemName: isPlaying ? "pause.fill" : "play.fill")
+                    .frame(width: 44)
+                    .contentTransition(.symbolEffect(.replace))
+                    .onTapGesture {
+                        isPlaying.toggle()
+                    }
+                
+                Image(systemName: "bell.and.waves.left.and.right.fill")
+                    .frame(width: 44)
+                    .symbolEffect(.bounce,
+                                  options: .speed(3).repeat(3),
+                                  value: isPlaying)
+            }
+            .foregroundStyle(.primary, .white)
+            .font(.largeTitle)
+            .padding(20)
+            .background(.ultraThinMaterial)
+            .overlay(
+                RoundedRectangle(cornerRadius: 20)
+                    .strokeBorder(linearGradient)
+            )
+            .cornerRadius(20)
+            .offset(y: -44)
         }
         .frame(maxWidth: 400)
         .padding(20)
