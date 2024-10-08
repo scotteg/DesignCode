@@ -11,124 +11,170 @@ struct ContentView: View {
     struct AnimationValues {
         var position: CGPoint = .zero
         var scale: Double = 1
+        var opacity: Double = 0
     }
     
     @State var isPlaying = false
     @State var time = Date.now
     @State var isActive = false
     @State var isDownloading = false
+    @State var hasSimpleWave = false
+    @State var hasComplexWave = false
+    @State var hasPattern = false
+    @State var hasNoise = false
+    @State var hasEmboss = false
+    @State var isPixelated = false
     
     let startDate = Date.now
     let timer = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
     
     var body: some View {
-        TimelineView(.animation) { context in
-            ZStack {
-                TimelineView(.animation) { context in
-                    Image(.image1)
-                        .resizable()
-                        .scaledToFill()
-                        .frame(height: isPlaying ? 600 : 300)
-                        .frame(width: isPlaying ? 393 : 360)
-                        .overlay {
-                            RoundedRectangle(cornerRadius: 20)
-                                .colorEffect(
-                                    ShaderLibrary.noise(.float(startDate.timeIntervalSinceNow))
-                                )
-                                .blendMode(.softLight)
-                        }
-                        .layerEffect(ShaderLibrary.emboss(.float(10)), maxSampleOffset: .zero)
-                        .layerEffect(ShaderLibrary.pixellate(.float(10)), maxSampleOffset: .zero)
-                        .cornerRadius(isPlaying ? 0 : 20)
-                        .offset(y: isPlaying ? -200 : 0)
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 20)
-                                .strokeBorder(linearGradient)
-                                .opacity(isPlaying ? 0 : 1)
-                        )
-                        .phaseAnimator([1, 2], trigger: isPlaying) { content, phase in
-                            content.blur(radius: phase == 2 ? 100 : 0)
-                        }
+        TimelineView(.animation) { _ in
+            layout
+                .frame(maxWidth: 400)
+                .dynamicTypeSize(.xSmall ... .xLarge)
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .background(.blue.opacity(0.001))
+                .distortionEffect(
+                    ShaderLibrary.simpleWave(.float(startDate.timeIntervalSinceNow)),
+                    maxSampleOffset: CGSize(width: 100, height: 100),
+                    isEnabled: hasSimpleWave
+                )
+                .visualEffect { content, geometry in
+                    content.distortionEffect(
+                        ShaderLibrary.complexWave(
+                            .float(startDate.timeIntervalSinceNow),
+                            .float2(geometry.size),
+                            .float(1),
+                            .float(8),
+                            .float(10)
+                        ),
+                        maxSampleOffset: CGSize(width: 100, height: 100),
+                        isEnabled: hasComplexWave
+                    )
                 }
-                
-                Circle()
-                    .fill(.thinMaterial)
-                    .frame(width: 100)
-                    .overlay(Circle().stroke(.secondary))
-                    .overlay(
-                        Image(systemName: "photo")
-                            .font(.largeTitle)
+        }
+    }
+    
+    var layout: some View {
+        ZStack {
+            TimelineView(.animation) { _ in
+                Image(.image1)
+                    .resizable()
+                    .scaledToFill()
+                    .frame(height: isPlaying ? 600 : 300)
+                    .frame(width: isPlaying ? 393 : 360)
+                    .colorEffect(
+                        ShaderLibrary.circleLoader(.boundingRect, .float(startDate.timeIntervalSinceNow)),
+                        isEnabled: hasPattern
                     )
-                    .keyframeAnimator(
-                        initialValue: AnimationValues(),
-                        trigger: isDownloading
-                    ) { content, value in
-                        content.offset(x: value.position.x, y: value.position.y)
-                            .scaleEffect(value.scale)
-                    } keyframes: { value in
-                        KeyframeTrack(\.position) {
-                            SpringKeyframe(
-                                CGPoint(x: 100, y: -100),
-                                duration: 0.5,
-                                spring: .bouncy
+                    .overlay {
+                        RoundedRectangle(cornerRadius: 20)
+                            .colorEffect(
+                                ShaderLibrary.noise(.float(startDate.timeIntervalSinceNow)),
+                                isEnabled: hasNoise
                             )
-                            
-                            CubicKeyframe(CGPoint(x: 400, y: 1000), duration: 0.5)
-                        }
-                        
-                        KeyframeTrack(\.scale) {
-                            CubicKeyframe(1.2, duration: 0.5)
-                            CubicKeyframe(1, duration: 0.5)
-                        }
+                            .blendMode(.overlay)
+                            .opacity(hasNoise ? 1 : 0)
                     }
-                
-                
-                content
-                    .padding(20)
-                    .background(.regularMaterial)
+                    .layerEffect(
+                        ShaderLibrary.emboss(.float(10)),
+                        maxSampleOffset: .zero,
+                        isEnabled: hasEmboss
+                    )
+                    .layerEffect(
+                        ShaderLibrary.pixellate(.float(10)),
+                        maxSampleOffset: .zero,
+                        isEnabled: isPixelated
+                    )
+                    .cornerRadius(isPlaying ? 0 : 20)
+                    .offset(y: isPlaying ? -200 : 0)
                     .overlay(
                         RoundedRectangle(cornerRadius: 20)
                             .strokeBorder(linearGradient)
+                            .opacity(isPlaying ? 0 : 1)
                     )
-                    .cornerRadius(20)
-                    .padding(40)
-                    .offset(y: isPlaying ? 220 : 80)
-                    .phaseAnimator([1, 1.1], trigger: isPlaying) { content, phase in
-                        content.scaleEffect(phase)
-                    } animation: { phase in
-                        switch phase {
-                        case 1: .bouncy
-                        case 1.1: .easeOut
-                        default: .easeInOut
-                        }
+                    .phaseAnimator([1, 2], trigger: isPlaying) { content, phase in
+                        content.blur(radius: phase == 2 ? 100 : 0)
                     }
-                
-                play
-                    .frame(width: isPlaying ? 220 : 50)
-                    .foregroundStyle(
-                        ShaderLibrary.angledFill(
-                            .float(10),
-                            .float(10),
-                            .color(.blue)
-                        )
-                    )
-                    .foregroundStyle(.primary, .white)
-                    .font(.largeTitle)
-                    .padding(20)
-                    .background(.ultraThinMaterial)
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 20)
-                            .strokeBorder(linearGradient)
-                    )
-                    .cornerRadius(20)
-                    .offset(y: isPlaying ? 40 : -44)
+                    .onTapGesture { hasNoise.toggle() }
             }
-            .frame(maxWidth: 400)
-            .dynamicTypeSize(.xSmall ... .xLarge)
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .background(.blue.opacity(0.001))
-            .distortionEffect(ShaderLibrary.simpleWave(.float(startDate.timeIntervalSinceNow)),
-                              maxSampleOffset: CGSize(width: 100, height: 100))
+            
+            Circle()
+                .fill(.thinMaterial)
+                .frame(width: 100)
+                .overlay(Circle().stroke(.secondary))
+                .overlay(
+                    Image(systemName: "photo")
+                        .font(.largeTitle)
+                )
+                .keyframeAnimator(
+                    initialValue: AnimationValues(),
+                    trigger: isDownloading
+                ) { content, value in
+                    content.offset(x: value.position.x, y: value.position.y)
+                        .scaleEffect(value.scale)
+                        .opacity(value.opacity)
+                } keyframes: { _ in
+                    KeyframeTrack(\.position) {
+                        SpringKeyframe(
+                            CGPoint(x: 100, y: -100),
+                            duration: 0.5,
+                            spring: .bouncy
+                        )
+                        
+                        CubicKeyframe(CGPoint(x: 400, y: 1000), duration: 0.5)
+                    }
+                    
+                    KeyframeTrack(\.scale) {
+                        CubicKeyframe(1.2, duration: 0.5)
+                        CubicKeyframe(1, duration: 0.5)
+                    }
+                    
+                    KeyframeTrack(\.opacity) {
+                        CubicKeyframe(1, duration: 0)
+                    }
+                }
+            
+            content
+                .padding(20)
+                .background(.regularMaterial)
+                .overlay(
+                    RoundedRectangle(cornerRadius: 20)
+                        .strokeBorder(linearGradient)
+                )
+                .cornerRadius(20)
+                .padding(40)
+                .offset(y: isPlaying ? 220 : 80)
+                .phaseAnimator([1, 1.1], trigger: isPlaying) { content, phase in
+                    content.scaleEffect(phase)
+                } animation: { phase in
+                    switch phase {
+                    case 1: .bouncy
+                    case 1.1: .easeOut
+                    default: .easeInOut
+                    }
+                }
+            
+            play
+                .frame(width: isPlaying ? 220 : 50)
+                .foregroundStyle(
+                    ShaderLibrary.angledFill(
+                        .float(10),
+                        .float(10),
+                        .color(.blue)
+                    )
+                )
+                .foregroundStyle(.primary, .white)
+                .font(.largeTitle)
+                .padding(20)
+                .background(.ultraThinMaterial)
+                .overlay(
+                    RoundedRectangle(cornerRadius: 20)
+                        .strokeBorder(linearGradient)
+                )
+                .cornerRadius(20)
+                .offset(y: isPlaying ? 40 : -44)
         }
     }
     
@@ -171,18 +217,33 @@ struct ContentView: View {
             
             HStack {
                 HStack {
-                    Image(systemName: "ellipsis")
-                        .symbolEffect(.pulse)
-                    
+                    Button {
+                        hasPattern.toggle()
+                    } label: {
+                        Image(systemName: "ellipsis")
+                            .symbolEffect(.pulse)
+                    }
+                    .tint(.primary)
+
                     Divider()
                     
-                    Image(systemName: "sparkle.magnifyingglass")
-                        .symbolEffect(.scale.up, isActive: isActive)
-                    
+                    Button {
+                        hasSimpleWave.toggle()
+                    } label: {
+                        Image(systemName: "sparkle.magnifyingglass")
+                            .symbolEffect(.scale.up, isActive: isActive)
+                    }
+                    .tint(.primary)
+
                     Divider()
                     
-                    Image(systemName: "face.smiling")
-                        .symbolEffect(.bounce, value: isActive)
+                    Button {
+                        hasComplexWave.toggle()
+                    } label: {
+                        Image(systemName: "face.smiling")
+                            .symbolEffect(.bounce, value: isActive)
+                    }
+                    .tint(.primary)
                 }
                 .padding()
                 .frame(height: 44)
@@ -191,7 +252,7 @@ struct ContentView: View {
                                            bottomLeadingRadius: 20,
                                            bottomTrailingRadius: 0,
                                            topTrailingRadius: 20)
-                    .strokeBorder(linearGradient)
+                        .strokeBorder(linearGradient)
                 )
                 .offset(x: -20, y: 20)
                 
@@ -205,13 +266,11 @@ struct ContentView: View {
                                                bottomLeadingRadius: 0,
                                                bottomTrailingRadius: 20,
                                                topTrailingRadius: 0)
-                        .strokeBorder(linearGradient)
+                            .strokeBorder(linearGradient)
                     )
                     .offset(x: 20, y: 20)
                     .symbolEffect(.bounce, value: isDownloading)
-                    .onTapGesture {
-                        isDownloading.toggle()
-                    }
+                    .onTapGesture { isDownloading.toggle() }
             }
         }
     }
@@ -225,6 +284,7 @@ struct ContentView: View {
                 .symbolEffect(.bounce, value: isPlaying)
                 .opacity(isPlaying ? 1 : 0)
                 .blur(radius: isPlaying ? 0 : 20)
+                .onTapGesture { hasEmboss.toggle() }
             
             Image(systemName: isPlaying ? "pause.fill" : "play.fill")
                 .frame(width: 44)
@@ -246,6 +306,7 @@ struct ContentView: View {
                     self.time = time
                     isActive.toggle()
                 }
+                .onTapGesture { isPixelated.toggle() }
         }
     }
 }
