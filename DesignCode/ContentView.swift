@@ -24,9 +24,12 @@ struct ContentView: View {
     @State var hasNoise = false
     @State var hasEmboss = false
     @State var isPixelated = false
+    @State var number: Float = 0
+    @State var isIncrementing = true
     
     let startDate = Date.now
     let timer = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
+    let numberTimer = Timer.publish(every: 0.1, on: .main, in: .common).autoconnect()
     
     var body: some View {
         TimelineView(.animation) { _ in
@@ -83,10 +86,21 @@ struct ContentView: View {
                         isEnabled: hasEmboss
                     )
                     .layerEffect(
-                        ShaderLibrary.pixellate(.float(10)),
+                        ShaderLibrary.pixellate(.float(number)),
                         maxSampleOffset: .zero,
                         isEnabled: isPixelated
                     )
+                    .onReceive(numberTimer) { _ in
+                        number += isIncrementing ? 1 : -1
+                        
+                        if number >= 10 {
+                            isIncrementing = false
+                        }
+                        
+                        if number <= 0 {
+                            isIncrementing = true
+                        }
+                    }
                     .cornerRadius(isPlaying ? 0 : 20)
                     .offset(y: isPlaying ? -200 : 0)
                     .overlay(
@@ -138,7 +152,10 @@ struct ContentView: View {
             
             content
                 .padding(20)
-                .background(.regularMaterial)
+                .background(hasSimpleWave || hasComplexWave ?
+                    AnyView(Color(.secondarySystemBackground)) :
+                                AnyView(Color.clear.background(.regularMaterial))
+                )
                 .overlay(
                     RoundedRectangle(cornerRadius: 20)
                         .strokeBorder(linearGradient)
@@ -158,17 +175,23 @@ struct ContentView: View {
             
             play
                 .frame(width: isPlaying ? 220 : 50)
-                .foregroundStyle(
-                    ShaderLibrary.angledFill(
-                        .float(10),
-                        .float(10),
-                        .color(.blue)
-                    )
-                )
+                .if(hasPattern) { view in
+                    view
+                        .foregroundStyle(
+                            ShaderLibrary.angledFill(
+                                .float(10),
+                                .float(10),
+                                .color(.blue)
+                            )
+                        )
+                }
                 .foregroundStyle(.primary, .white)
                 .font(.largeTitle)
                 .padding(20)
-                .background(.ultraThinMaterial)
+                .background(hasSimpleWave || hasComplexWave ?
+                    AnyView(Color(.secondarySystemBackground)) :
+                    AnyView(Color.clear.background(.ultraThinMaterial))
+                )
                 .overlay(
                     RoundedRectangle(cornerRadius: 20)
                         .strokeBorder(linearGradient)
@@ -224,7 +247,7 @@ struct ContentView: View {
                             .symbolEffect(.pulse)
                     }
                     .tint(.primary)
-
+                    
                     Divider()
                     
                     Button {
@@ -234,7 +257,7 @@ struct ContentView: View {
                             .symbolEffect(.scale.up, isActive: isActive)
                     }
                     .tint(.primary)
-
+                    
                     Divider()
                     
                     Button {
