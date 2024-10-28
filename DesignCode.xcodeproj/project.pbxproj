@@ -15,6 +15,7 @@
 		D28A59E62C821D5000788870 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = D28A59E52C821D5000788870 /* Preview Assets.xcassets */; };
 		D2F0AD602CCD22CF00472782 /* Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = D2F0AD5F2CCD22CF00472782 /* Extensions.swift */; };
 		D2F0AD622CCFC1C600472782 /* CardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D2F0AD612CCFC1C600472782 /* CardView.swift */; };
+		D2F0AD642CCFC60A00472782 /* Card.swift in Sources */ = {isa = PBXBuildFile; fileRef = D2F0AD632CCFC60A00472782 /* Card.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -27,6 +28,7 @@
 		D28A59E52C821D5000788870 /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
 		D2F0AD5F2CCD22CF00472782 /* Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Extensions.swift; sourceTree = "<group>"; };
 		D2F0AD612CCFC1C600472782 /* CardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardView.swift; sourceTree = "<group>"; };
+		D2F0AD632CCFC60A00472782 /* Card.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Card.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -62,6 +64,7 @@
 				D28A59DE2C821D4F00788870 /* DesignCodeApp.swift */,
 				D28A59E02C821D4F00788870 /* ContentView.swift */,
 				D2F0AD612CCFC1C600472782 /* CardView.swift */,
+				D2F0AD632CCFC60A00472782 /* Card.swift */,
 				D2F0AD5F2CCD22CF00472782 /* Extensions.swift */,
 				D24CDA5D2CB58AA000BA3AC2 /* Shaders.metal */,
 				D24CDA622CB58FC000BA3AC2 /* example-swiftui-shaders.metal */,
@@ -151,6 +154,7 @@
 			files = (
 				D2F0AD602CCD22CF00472782 /* Extensions.swift in Sources */,
 				D24CDA5E2CB58AA000BA3AC2 /* Shaders.metal in Sources */,
+				D2F0AD642CCFC60A00472782 /* Card.swift in Sources */,
 				D24CDA632CB58FC000BA3AC2 /* example-swiftui-shaders.metal in Sources */,
 				D28A59E12C821D4F00788870 /* ContentView.swift in Sources */,
 				D2F0AD622CCFC1C600472782 /* CardView.swift in Sources */,
