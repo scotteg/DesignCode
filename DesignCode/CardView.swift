@@ -36,7 +36,7 @@ struct CardView: View {
     var body: some View {
         TimelineView(.animation) { _ in
             layout
-                .frame(maxWidth: 400)
+                .frame(maxWidth: 393)
                 .dynamicTypeSize(.xSmall ... .xLarge)
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
                 .padding(.vertical, 10)
@@ -72,7 +72,7 @@ struct CardView: View {
                 card.image
                     .resizable()
                     .scaledToFill()
-                    .frame(height: isPlaying ? 600 : 300)
+                    .frame(height: isPlaying ? 600 : 500)
                     .frame(width: isPlaying ? 393 : 360)
                     .if(hasPattern, transform: { view in
                         view.colorEffect(
