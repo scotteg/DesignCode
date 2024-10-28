@@ -14,6 +14,9 @@ struct CardView: View {
         var opacity: Double = 0
     }
 
+    var card: Card = cards[1]
+    @Binding var screenSize: CGSize
+
     @State var isPlaying = false
     @State var time = Date.now
     @State var isActive = false
@@ -27,8 +30,6 @@ struct CardView: View {
     @State var number: Float = 0
     @State var isIncrementing = true
 
-    var card: Card = cards[1]
-
     let startDate = Date.now
     let timer = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
     let numberTimer = Timer.publish(every: 0.1, on: .main, in: .common).autoconnect()
@@ -36,7 +37,7 @@ struct CardView: View {
     var body: some View {
         TimelineView(.animation) { _ in
             layout
-                .frame(maxWidth: 393)
+                .frame(maxWidth: screenSize.width)
                 .dynamicTypeSize(.xSmall ... .xLarge)
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
                 .padding(.vertical, 10)
@@ -72,8 +73,8 @@ struct CardView: View {
                 card.image
                     .resizable()
                     .scaledToFill()
-                    .frame(height: isPlaying ? 600 : 500)
-                    .frame(width: isPlaying ? 393 : 360)
+                    .frame(height: isPlaying ? screenSize.height - 280 : 500)
+                    .frame(width: isPlaying ? screenSize.width : screenSize.width - 40)
                     .if(hasPattern, transform: { view in
                         view.colorEffect(
                             ShaderLibrary.circleLoader(.boundingRect, .float(startDate.timeIntervalSinceNow)),
@@ -363,5 +364,5 @@ struct CardView: View {
 }
 
 #Preview {
-    CardView()
+    CardView(screenSize: .constant(CGSize(width: 393, height: 852)))
 }
